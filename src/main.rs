@@ -14,9 +14,9 @@ use std::str;
 
 fn main()
 {
-    let broker_address = "localhost:1883";
+    let broker_address = "localhost:1883"; //1883 is VerneMQ's default port
     let client_id = format!("/MQTT/rust/{}", Uuid::new_v4());
-    let topic_name = TopicName::new("test").unwrap();
+    let topic_name = "test";
 
 
     let args: Vec<String> = env::args().collect();
@@ -47,7 +47,7 @@ fn main()
     {
         //Read packets
 
-        let topic_filter = TopicFilter::new("test").unwrap();
+        let topic_filter = TopicFilter::new(topic_name).unwrap();
         let sub_packet = SubscribePacket::new(10, vec![(topic_filter, QualityOfService::Level0)]);
         
         let mut buf = Vec::new();
@@ -81,6 +81,8 @@ fn main()
     {
         //Send packets
 
+        let topic = TopicName::new(topic_name).unwrap();
+
         let mut counter = 0;
 
         loop
@@ -88,7 +90,7 @@ fn main()
             println!("Send {:?}!", counter);
 
             let msg = format!("Data from MQTT sensor {:?}", counter);
-            let pub_packet = PublishPacket::new(topic_name.clone(), QoSWithPacketIdentifier::Level0, msg);
+            let pub_packet = PublishPacket::new(topic.clone(), QoSWithPacketIdentifier::Level0, msg);
 
             let mut buf = Vec::new();
             pub_packet.encode(&mut buf).unwrap();
